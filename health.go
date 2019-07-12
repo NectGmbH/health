@@ -4,12 +4,27 @@ import (
     "fmt"
     "math/rand"
     "net"
+    "strings"
     "time"
 
     "github.com/golang/glog"
 )
 
 const defaultRetention = time.Second
+
+func GetHealthCheckProvider(name string) (HealthCheckProvider, error) {
+    name = strings.ToLower(strings.TrimSpace(name))
+
+    if name == "none" {
+        return DefaultNoneHealthCheckProvider, nil
+    } else if name == "tcp" {
+        return DefaultTCPHealthCheckProvider, nil
+    } else if name == "http" {
+        return DefaultHTTPHealthCheckProvider, nil
+    }
+
+    return nil, fmt.Errorf("unknown health check protocol `%s` use either \"none\", \"tcp\" or \"http\"", name)
+}
 
 // HealthCheck represents a health monitoring resource
 type HealthCheck struct {
