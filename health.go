@@ -21,6 +21,8 @@ func GetHealthCheckProvider(name string) (HealthCheckProvider, error) {
         return DefaultTCPHealthCheckProvider, nil
     } else if name == "http" {
         return DefaultHTTPHealthCheckProvider, nil
+    } else if name == "https" {
+        return DefaultHTTPSHealthCheckProvider, nil
     }
 
     return nil, fmt.Errorf("unknown health check protocol `%s` use either \"none\", \"tcp\" or \"http\"", name)
@@ -48,6 +50,11 @@ type HealthCheckStatus struct {
     Healthy   bool
     Message   string
     DidChange bool
+}
+
+// GetAddress returns the endpoint (i.e. 127.0.0.1:80) of the current HealthCheckStatus.
+func (h *HealthCheckStatus) GetAddress() string {
+    return fmt.Sprintf("%s:%d", h.IP, h.Port)
 }
 
 // String returns a string representation of the current status.
