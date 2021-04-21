@@ -53,12 +53,12 @@ type HealthCheckStatus struct {
 }
 
 // GetAddress returns the endpoint (i.e. 127.0.0.1:80) of the current HealthCheckStatus.
-func (h *HealthCheckStatus) GetAddress() string {
+func (h HealthCheckStatus) GetAddress() string {
     return fmt.Sprintf("%s:%d", h.IP, h.Port)
 }
 
 // String returns a string representation of the current status.
-func (s *HealthCheckStatus) String() string {
+func (s HealthCheckStatus) String() string {
     sign := "UP"
 
     if !s.Healthy {
