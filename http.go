@@ -16,12 +16,14 @@ var DefaultHTTPSHealthCheckProvider = &HTTPHealthCheckProvider{
 type HTTPHealthCheckProvider struct {
 	HTTPS              bool
 	InsecureSkipVerify bool
+	Path               string
 }
 
-func NewHTTPHealthCheckProvider(https bool, insecureSkipVerify bool) *HTTPHealthCheckProvider {
+func NewHTTPHealthCheckProvider(https bool, insecureSkipVerify bool, path string) *HTTPHealthCheckProvider {
 	return &HTTPHealthCheckProvider{
 		HTTPS:              https,
 		InsecureSkipVerify: insecureSkipVerify,
+		Path:               path,
 	}
 }
 
@@ -42,7 +44,14 @@ func (c *HTTPHealthCheckProvider) CheckHealth(h *HealthCheck) (string, bool) {
 		schema = "https"
 	}
 
-	resp, err := client.Get(schema + "://" + h.GetAddress() + "/healthz")
+	path := c.Path
+	if path == "" {
+		path = "/healthz"
+	} else if path[0] != '/' {
+		path = "/" + path
+	}
+
+	resp, err := client.Get(schema + "://" + h.GetAddress() + path)
 	if err != nil {
 		return err.Error(), false
 	}
