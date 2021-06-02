@@ -112,23 +112,21 @@ func (h *HealthCheck) Monitor(stopChan chan struct{}) chan HealthCheckStatus {
 				glog.V(5).Infof("Stopped monitoring %s:%d", h.IP, h.Port)
 				close(notificationChan)
 				return
-			default:
+			case <-time.After(h.Retention):
+
+				isFirst := h.LastCheck.IsZero()
+				before := h.Healthy
+				h.CheckHealth()
+				after := h.Healthy
+
+				notificationChan <- HealthCheckStatus{
+					IP:        h.IP,
+					Port:      h.Port,
+					Healthy:   h.Healthy,
+					Message:   h.LastMessage,
+					DidChange: isFirst || after != before,
+				}
 			}
-
-			isFirst := h.LastCheck.IsZero()
-			before := h.Healthy
-			h.CheckHealth()
-			after := h.Healthy
-
-			notificationChan <- HealthCheckStatus{
-				IP:        h.IP,
-				Port:      h.Port,
-				Healthy:   h.Healthy,
-				Message:   h.LastMessage,
-				DidChange: isFirst || after != before,
-			}
-
-			time.Sleep(h.Retention)
 		}
 	})()
 
